@@ -1,0 +1,245 @@
+//-----------------------------------아두이노 wifi모듈 설정------------------------------------------//
+void setwifi(){
+  mySerial.begin(9600); //can't be faster than 19200 for softserial
+  Serial.println("ESP8266 Demo");
+  
+  Serial.println("AT+RST");
+  mySerial.println("AT+RST");  
+  delay(500);  
+  
+  if(mySerial.find("OK"))
+  {
+    Serial.println("Module is ready");
+  }
+  else
+  {
+    Serial.println("Module have no response.");
+    //while(1);
+  }
+  delay(1000);
+  
+  //connect to the wifi
+  boolean connected=false;
+  for(int i=0;i<5;i++)
+  {
+    if(connectWiFi())
+    {
+      connected = true;
+      break;
+    }
+  }
+  
+  if (!connected){
+    //while(1);
+  }
+  delay(1000);
+  
+  //print the ip addr
+  Serial.println("AT+CIFSR");
+  mySerial.println("AT+CIFSR");
+  mySerial.println("ip address:");   
+}
+//----------------------------------------------------================================//
+boolean connectWiFi()
+{
+  while(mySerial.available()){
+    mySerial.read();
+  }
+  Serial.println("AT+CWMODE=1");
+  mySerial.println("AT+CWMODE=1");
+  
+  String cmd="AT+CWJAP=\"";
+  cmd+=SSID;
+  cmd+="\",\"";
+  cmd+=PASS;
+  cmd+="\"";
+  mySerial.println(cmd);
+  Serial.println(cmd);
+  delay(1000);
+  
+  if(mySerial.find("OK"))
+  {
+    Serial.println("OK, Connected to WiFi.");
+    return true;
+  } else {
+    Serial.println("Can not connect to the WiFi.");
+    return false;
+  }
+}
+
+
+//============================와이파이 모듈 통신 get부분=====================//
+void get_manu(){
+  String s;
+  delay(1000);
+  String cmd = "AT+CIPSTART=\"TCP\",\"";  
+  cmd += SERVERIP;
+  cmd += "\",80";  
+  Serial.println(cmd);  
+  mySerial.println(cmd); 
+  delay(1000);
+  String path = "/read_routine.php";
+  String getRequest = "GET " + path + " HTTP/1.1\r\n" + "Host: "+SERVERIP+"\r\n\r\n";
+  String getRequestLength = String(getRequest.length());
+  mySerial.print("AT+CIPSEND=");  
+  //mySerial.println(getRequest.length());
+  mySerial.println(getRequestLength);
+  //Serial.println(getRequest.length());
+  
+  //delay(1000);
+  if(mySerial.find(">"))
+  {
+     Serial.print("getRequest : ");Serial.print(getRequest);
+     mySerial.println(getRequest);       
+  }
+  else{
+    Serial.print("connect failed");
+  }
+  
+  if(mySerial.available())
+  {
+     s = mySerial.readString();
+     Serial.print("s: ");
+     Serial.println(s);
+  }
+  int s_index = s.indexOf("{");
+  int e_index = s.indexOf("}");
+  String str = s.substring(s_index,e_index);
+  Serial.print("str: ");Serial.println(str);
+
+  /**
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject(str);
+  String result = root["flag"];
+  Serial.print("result: ");Serial.println(result);
+  **/
+  Serial.print("flag :");
+  Serial.println(json_parser(str,"flag"));
+  
+
+  int flag = json_parser(str,"flag").toInt();
+  Serial.println(flag);
+  if(flag==0){
+      resflag=0;
+  }
+  if(flag==1 && resflag==0){  //루틴과 같으면
+    move_motor();
+    resflag=1;    
+  }
+  if(flag==2){  //수동제어
+    move_motor();
+  }
+
+  mySerial.println("AT+CIPCLOSE"); 
+  Serial.println("======");
+  delay(1000);
+  
+}
+
+//==========================와이파이 모듈 통신 insert부분==========================//
+void insertweight(DeviceAddress deviceAddress)    
+{    
+  char manu;  
+  
+  if(digitalRead(touch)==HIGH){    
+    manu = '1';
+    move_motor();
+  }
+  else{
+    manu = '0';    
+  }
+  
+  float gram = scale.get_units()*400;
+  
+  Serial.print("Reading: ");
+  Serial.println(gram);
+  
+    
+  String cmd = "AT+CIPSTART=\"TCP\",\"";  
+  cmd += SERVERIP;
+  cmd += "\",80";  
+  Serial.println(cmd);  
+  mySerial.println(cmd);  
+  delay(1000);
+  if(mySerial.find("Error")){  
+      Serial.println( "TCP connect error" );  
+      return;  
+  }    
+  
+  char test[20];
+  String temp(floatToString(test,gram,2,0)); 
+      
+  cmd = "GET /insert_sensor.php?weight="+temp+"&date=now()&manu="+manu+" \r\n";  
+  mySerial.print("AT+CIPSEND=");  
+  mySerial.println(cmd.length());       
+  Serial.println(cmd);         
+  delay(1000);  
+     
+  if(mySerial.find(">")){  
+       Serial.print(">");  
+  }
+  else{  
+         mySerial.println("AT+CIPCLOSE");  
+         Serial.println("connect timeout");  
+         delay(1000);  
+         return;  
+  }  
+         
+  mySerial.print(cmd);  
+  delay(500);  
+  //Serial.find("+IPD");  
+  while (Serial.available())  
+  {  
+         char c = Serial.read();  
+         mySerial.write(c);  
+         if(c=='\r') mySerial.print('\n');  
+  }  
+  mySerial.println("AT+CIPCLOSE");
+  Serial.println("====");  
+  delay(1000);  
+}
+
+//==================php코드 6개중 db연결 부분=======================//
+
+<?php
+
+    $host = 'localhost';
+    $username = ''; # MySQL 계정 아이디
+    $password = ''; # MySQL 계정 패스워드
+    $dbname = '';  # DATABASE 이름ㅣ
+
+
+    $options = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8');
+    
+    try {
+
+        $con = new PDO("mysql:host={$host};dbname={$dbname};charset=utf8",$username, $password);
+    } catch(PDOException $e) {
+
+        die("Failed to connect to the database: " . $e->getMessage()); 
+    }
+
+
+    $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $con->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+    if(function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) { 
+        function undo_magic_quotes_gpc(&$array) { 
+            foreach($array as &$value) { 
+                if(is_array($value)) { 
+                    undo_magic_quotes_gpc($value); 
+                } 
+                else { 
+                    $value = stripslashes($value); 
+                } 
+            } 
+        } 
+ 
+        undo_magic_quotes_gpc($_POST); 
+        undo_magic_quotes_gpc($_GET); 
+        undo_magic_quotes_gpc($_COOKIE); 
+    } 
+ 
+    header('Content-Type: text/html; charset=utf-8'); 
+    #session_start();
+?>
