@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:background="@drawable/petblur"
+    android:layout_margin="15dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="15dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:id="@+id/refbtn"
+                android:background="@drawable/ic_refresh_black_24dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="25dp"
+                android:textStyle="bold"
+                android:text="남은 사료"
+                android:layout_marginLeft="5dp"/>
+
+            <TextView
+                android:id="@+id/one"
+                android:layout_width="13dp"
+                android:layout_height="match_parent"
+                android:background="@color/green"
+                android:layout_marginRight="2dp"/>
+            <TextView
+                android:id="@+id/two"
+                android:layout_width="13dp"
+                android:layout_height="match_parent"
+                android:background="@color/green"
+                android:layout_marginRight="2dp"/>
+            <TextView
+                android:id="@+id/three"
+                android:layout_width="13dp"
+                android:layout_height="match_parent"
+                android:background="@color/green"
+                android:layout_marginRight="2dp"/>
+            <TextView
+                android:id="@+id/four"
+                android:layout_width="13dp"
+                android:layout_height="match_parent"
+                android:background="@color/green"
+                android:layout_marginRight="2dp"/>
+
+            <Button
+                android:id="@+id/setbtn"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:background="@drawable/ic_settings_black_24dp"
+                android:layout_marginLeft="120dp"
+                />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="급식 일정 설정"
+            android:textStyle="bold"
+            android:textSize="22dp"
+            />
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:id="@+id/routinelist"
+
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="right">
+
+            <Button
+                android:id="@+id/deletebtn"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/ic_refresh_black_24dp"
+                />
+
+            <Button
+                android:onClick="add_popup"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/ic_add_circle_outline_black_24dp"
+                />
+
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:text="수동 급식 하기"
+            android:textStyle="bold"
+            android:textSize="22dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:layout_marginTop="15dp">
+            <Button
+                android:id="@+id/manualbtn"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/ic_pets_black_24dp"
+                android:layout_gravity="center"/>
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="20dp"
+                android:textStyle="bold"
+                android:textSize="13dp"
+                android:text="지금 밥 주기!!"
+                android:layout_gravity="center"
+                android:paddingLeft="13dp"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/stateview"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
