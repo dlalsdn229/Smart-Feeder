@@ -8,6 +8,6 @@ The User sets the meal time in the app, and the feeder feeds the food at the set
 # 
  - Arduino
  - Android(java)
- - Amazon Web Service 
+ - AWS
  - MYSQL
  - PHP
